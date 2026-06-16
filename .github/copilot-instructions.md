@@ -7,8 +7,11 @@ Teasenotes — AI-powered personal notes app. Each user has a private Supabase (
 - `onboarding/` — React 18 + Chakra UI **v2** + Vite 5 setup wizard (4 steps)
   - `src/pages/` — StepSupabase, StepWorker (MCP connect step), StepClaude, StepTest
   - `src/components/` — Layout (nav + progress bar), CodeBlock (with copy button)
-- `prompts/system-prompt.md` — paste-ready Claude Project Instructions
 - Root `package.json` — thin wrapper; `npm run dev/build/preview` delegates to `onboarding/`
+
+## System prompt (Claude Project Instructions)
+
+The system prompt lives in `onboarding/src/pages/StepClaude.tsx` as the `SYSTEM_PROMPT` constant. This is the single source of truth — it is what the onboarding wizard displays to users to copy into their Claude Project. To update the instructions Claude gives end-users, edit that constant directly. There is no separate markdown file; `prompts/system-prompt.md` has been deleted.
 
 ## Stack constraints
 

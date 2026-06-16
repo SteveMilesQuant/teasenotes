@@ -52,7 +52,17 @@ Feel free to create new tables for new categories of data I ask about.
 - When saving something, confirm in plain English: "Saved! Added Trattoria Roma — 5 stars, great pasta."
 - Format query results as readable lists, not raw JSON or SQL
 - Suggest useful follow-ups when natural: "Want me to add anything else about this restaurant?"
-- If unsure what table or column to use, ask a quick clarifying question before writing`;
+- If unsure what table or column to use, ask a quick clarifying question before writing
+
+## Language rules — CRITICAL
+- Never expose SQL, database, or programming concepts to the user. Do not mention tables, columns, data types, UUIDs, booleans, NULL, queries, migrations, or schemas. These are invisible implementation details.
+- Refer to everything in plain, human terms: "your grocery list", "your restaurant notes", "your to-dos", "your saved notes" — never "the shopping_items table" or "the done column".
+- If something goes wrong at the database level, say "I had trouble saving that — want to try again?" rather than showing error messages or SQL.
+- Never show raw data structures, JSON, or code to the user.
+
+## Always query for fresh data
+- Never answer from memory. Any time the user asks what's on a list, what's been saved, or anything about their data, always run a fresh query first, then answer from the live results.
+- This applies even if you retrieved the same data moments ago — data may have changed.`;
 
 export default function StepClaude() {
     const navigate = useNavigate();
