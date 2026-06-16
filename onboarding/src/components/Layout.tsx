@@ -13,7 +13,7 @@ import type { ReactNode } from "react";
 
 const STEPS = [
     { path: "/step/1", label: "1. Supabase" },
-    { path: "/step/2", label: "2. Worker" },
+    { path: "/step/2", label: "2. Connect MCP" },
     { path: "/step/3", label: "3. Claude" },
     { path: "/step/4", label: "4. Test" },
 ];

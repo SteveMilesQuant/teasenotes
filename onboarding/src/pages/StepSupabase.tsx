@@ -1,4 +1,4 @@
-import {
+﻿import {
     Box,
     Button,
     Heading,
@@ -11,46 +11,6 @@ import {
     AlertIcon,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import CodeBlock from "../components/CodeBlock";
-
-const BOOTSTRAP_SQL = `-- Run this once in the Supabase SQL Editor (Database → SQL Editor)
--- It creates two helper functions the MCP server calls.
-
-CREATE OR REPLACE FUNCTION public.exec_sql_query(p_sql text)
-RETURNS jsonb
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-DECLARE
-  v_result jsonb;
-BEGIN
-  EXECUTE format(
-    'SELECT jsonb_agg(row_to_json(t)) FROM (%s) t',
-    p_sql
-  ) INTO v_result;
-  RETURN COALESCE(v_result, '[]'::jsonb);
-EXCEPTION WHEN OTHERS THEN
-  RAISE EXCEPTION '%', SQLERRM;
-END;
-$$;
-
-CREATE OR REPLACE FUNCTION public.exec_sql_write(p_sql text)
-RETURNS jsonb
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-DECLARE
-  v_count integer;
-BEGIN
-  EXECUTE p_sql;
-  GET DIAGNOSTICS v_count = ROW_COUNT;
-  RETURN jsonb_build_object('ok', true, 'rows_affected', v_count);
-EXCEPTION WHEN OTHERS THEN
-  RAISE EXCEPTION '%', SQLERRM;
-END;
-$$;`;
 
 export default function StepSupabase() {
     const navigate = useNavigate();
@@ -66,21 +26,22 @@ export default function StepSupabase() {
                 </Heading>
                 <Text color="gray.600" fontSize="lg">
                     Supabase gives you a free PostgreSQL database in the cloud — no credit card needed.
+                    Each person gets their own private database.
                 </Text>
             </Box>
 
             <Alert status="info" borderRadius="md">
                 <AlertIcon />
                 <Text fontSize="sm">
-                    The free tier includes 500 MB storage and 50,000 API calls per day — more than
-                    enough for a family notes app. The only gotcha: free projects pause after 7 days of
-                    inactivity (Step 2 will fix this automatically).
+                    The free tier includes 500 MB storage and 50,000 API calls per day — plenty for
+                    a personal notes app. Free projects pause after 7 days of no activity; just visit
+                    your dashboard to wake one up, or upgrade to a paid plan ($25/mo) to prevent it.
                 </Text>
             </Alert>
 
             <Box>
                 <Heading size="md" mb={3}>
-                    1a — Create an account and project
+                    Create an account and project
                 </Heading>
                 <OrderedList spacing={2} pl={4}>
                     <ListItem>
@@ -88,49 +49,32 @@ export default function StepSupabase() {
                         <Link href="https://supabase.com" color="green.600" isExternal>
                             supabase.com
                         </Link>{" "}
-                        and click <strong>Start your project</strong> (free, sign in with GitHub or email).
+                        and click <strong>Start your project</strong>. Sign in with GitHub or email
+                        — it's free.
                     </ListItem>
                     <ListItem>
-                        Click <strong>New project</strong>. Name it <code>teasenotes</code>. Choose the
-                        region closest to you. Set a database password and save it somewhere safe.
+                        Click <strong>New project</strong>. Give it any name (e.g.{" "}
+                        <code>my-notes</code>). Pick the region closest to you. Set a database
+                        password and save it somewhere safe — you won't need it often but it's good
+                        to have.
                     </ListItem>
                     <ListItem>Wait about 60 seconds for the project to spin up.</ListItem>
-                </OrderedList>
-            </Box>
-
-            <Box>
-                <Heading size="md" mb={3}>
-                    1b — Copy your credentials
-                </Heading>
-                <OrderedList spacing={2} pl={4}>
                     <ListItem>
-                        In your project, go to <strong>Settings → API</strong>.
-                    </ListItem>
-                    <ListItem>
-                        Copy the <strong>Project URL</strong> — it looks like{" "}
-                        <code>https://abcdefghijkl.supabase.co</code>. Save it; you'll need it in Step 2.
-                    </ListItem>
-                    <ListItem>
-                        Copy the <strong>service_role</strong> key (under "Project API keys" — click
-                        "Reveal"). This is a secret — never share it publicly. Save it for Step 2.
+                        Note your <strong>Project Reference ID</strong> — it's the short code in
+                        your project URL:{" "}
+                        <code>https://supabase.com/dashboard/project/<strong>abcdefghijkl</strong></code>.
+                        You'll use it in the next step to scope Claude to just this project.
                     </ListItem>
                 </OrderedList>
             </Box>
 
-            <Box>
-                <Heading size="md" mb={3}>
-                    1c — Bootstrap the SQL helper functions
-                </Heading>
-                <Text mb={3} color="gray.600">
-                    The MCP server needs two helper functions to run SQL on your behalf. Run this
-                    once in the Supabase SQL Editor (<strong>Database → SQL Editor → New query</strong>):
+            <Alert status="success" borderRadius="md">
+                <AlertIcon />
+                <Text fontSize="sm">
+                    That's all for this step — no SQL to run, no keys to copy. Supabase's official
+                    MCP connector handles authentication for you in the next step.
                 </Text>
-                <CodeBlock code={BOOTSTRAP_SQL} language="sql" />
-                <Text fontSize="sm" color="gray.500" mt={2}>
-                    Click <strong>Run</strong> in the SQL Editor. You should see "Success. No rows
-                    returned." for each function.
-                </Text>
-            </Box>
+            </Alert>
 
             <Button
                 colorScheme="green"
@@ -138,8 +82,9 @@ export default function StepSupabase() {
                 alignSelf="flex-end"
                 onClick={() => navigate("/step/2")}
             >
-                Next: Deploy the MCP server →
+                Next: Connect Claude to your database →
             </Button>
         </VStack>
     );
 }
+

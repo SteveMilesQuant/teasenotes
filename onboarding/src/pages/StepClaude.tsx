@@ -19,46 +19,40 @@ import {
 import { useNavigate } from "react-router-dom";
 import CodeBlock from "../components/CodeBlock";
 
-const SYSTEM_PROMPT = `You are a personal notes and to-do assistant for our family. You have access to a PostgreSQL database via MCP tools.
+const SYSTEM_PROMPT = `You are my personal notes and to-do assistant. You have access to my PostgreSQL database via Supabase MCP tools.
 
-## Your tools
-- list_tables — see what data currently exists
-- query(sql) — read data (SELECT only)
-- write(sql) — add, edit, or delete rows (INSERT / UPDATE / DELETE)
-- create_table(sql) — create a new table when a category doesn't exist yet
-- drop_table(table_name, confirmed) — permanently delete a table (requires me to type "confirm")
+## Your tools (Supabase MCP)
+- list_tables — see what tables and columns currently exist
+- execute_sql(query) — run any SQL: SELECT to read, INSERT/UPDATE/DELETE to write, CREATE TABLE for new categories
+- apply_migration(name, query) — use this for CREATE TABLE and ALTER TABLE statements
 
 ## Database conventions
-Every table you create MUST include these columns:
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  owner TEXT NOT NULL,
-  shared BOOLEAN NOT NULL DEFAULT false,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+Every table you create MUST include these standard columns:
+  id          UUID         DEFAULT gen_random_uuid() PRIMARY KEY,
+  created_at  TIMESTAMPTZ  NOT NULL DEFAULT now(),
+  updated_at  TIMESTAMPTZ  NOT NULL DEFAULT now()
 
 Use snake_case for all table and column names.
 
-## Predefined tables (create on first use if they don't exist)
-- restaurant_notes: restaurant_name, cuisine, location, rating (1-5), notes, visited_on
-- todos: title, done (boolean), due_date, list_name
-- shopping_items: item, quantity, list_name (default 'grocery'), purchased (boolean)
-- notes: title, body, tags
+## Predefined tables (create these on first use if they don't exist)
+- restaurant_notes: restaurant_name TEXT, cuisine TEXT, location TEXT, rating INTEGER (1-5), notes TEXT, visited_on DATE
+- todos: title TEXT NOT NULL, done BOOLEAN DEFAULT false, due_date DATE, list_name TEXT
+- shopping_items: item TEXT NOT NULL, quantity TEXT, list_name TEXT DEFAULT 'grocery', purchased BOOLEAN DEFAULT false
+- notes: title TEXT, body TEXT NOT NULL, tags TEXT
 
-## Privacy rules
-- When reading: show WHERE owner = '[YOUR_USERNAME]' OR shared = true
-- When writing: always set owner = '[YOUR_USERNAME]'
-- Ask whether a record should be shared when context is ambiguous
-- "Show me everything" means my data + shared records — not other users' private records
+Feel free to create new tables for new categories of data I ask about.
 
 ## Safety rules
 - Never DELETE or UPDATE without a WHERE clause
-- Always warn before dropping a table and require me to type "confirm"
+- Always warn before dropping a table and require me to type "confirm" before proceeding
+- If asked to delete all records from a table, confirm first
 
-## Tone
+## Tone and behavior
 - Be concise and friendly
-- Confirm saves in plain English: "Saved! Added Osteria Marco — 4 stars, shared."
-- Format results as readable lists, not raw JSON
-- Suggest follow-ups when natural`;
+- When saving something, confirm in plain English: "Saved! Added Trattoria Roma — 5 stars, great pasta."
+- Format query results as readable lists, not raw JSON or SQL
+- Suggest useful follow-ups when natural: "Want me to add anything else about this restaurant?"
+- If unsure what table or column to use, ask a quick clarifying question before writing`;
 
 export default function StepClaude() {
     const navigate = useNavigate();
@@ -70,20 +64,19 @@ export default function StepClaude() {
                     Step 3 of 4
                 </Text>
                 <Heading size="xl" mb={2}>
-                    Configure Claude
+                    Set up your Claude Project
                 </Heading>
                 <Text color="gray.600" fontSize="lg">
-                    Connect your MCP server and create a Project with custom instructions. Works on
-                    iPhone, iPad, desktop, and web — all on the free Claude tier.
+                    If you completed Step 2, Claude already has Supabase connected. Now create a
+                    Project with standing instructions so every chat knows how to organize your data.
                 </Text>
             </Box>
 
             <Alert status="success" borderRadius="md">
                 <AlertIcon />
                 <Text fontSize="sm">
-                    MCP connectors are available on <strong>Claude's free tier</strong> — no Pro
-                    subscription needed. Each family member follows these same steps with their own
-                    API key.
+                    Claude Projects and MCP connectors are available on the{" "}
+                    <strong>free Claude tier</strong> — no Pro subscription needed.
                 </Text>
             </Alert>
 
@@ -98,43 +91,23 @@ export default function StepClaude() {
                     {/* iOS */}
                     <TabPanel px={0}>
                         <VStack align="stretch" gap={4}>
-                            <Heading size="sm">Add the MCP connector</Heading>
-                            <OrderedList spacing={2} pl={4}>
-                                <ListItem>Open the Claude app → tap your profile icon (top left).</ListItem>
-                                <ListItem>
-                                    Tap <strong>Settings → Connectors → Add connector</strong>.
-                                </ListItem>
-                                <ListItem>
-                                    Enter a name like <em>Teasenotes</em> and the URL:{" "}
-                                    <code>https://teasenotes-mcp.YOUR-ACCOUNT.workers.dev/mcp</code>
-                                </ListItem>
-                                <ListItem>
-                                    Under <strong>Authentication</strong>, set type to{" "}
-                                    <strong>API Key / Bearer Token</strong> and paste your personal API key
-                                    from Step 2.
-                                </ListItem>
-                                <ListItem>
-                                    Save. Claude will test the connection — you should see a green checkmark.
-                                </ListItem>
-                            </OrderedList>
-
-                            <Heading size="sm" mt={2}>
-                                Create a Project with custom instructions
-                            </Heading>
+                            <Heading size="sm">Create a Project</Heading>
                             <OrderedList spacing={2} pl={4}>
                                 <ListItem>
                                     Tap <strong>Projects → New Project</strong>. Name it{" "}
-                                    <em>Family Notes</em>.
+                                    <em>My Notes</em>.
                                 </ListItem>
                                 <ListItem>
-                                    Tap <strong>Project Instructions</strong> and paste the system prompt below.
+                                    Tap <strong>Project Instructions</strong> and paste the system
+                                    prompt below.
                                 </ListItem>
                                 <ListItem>
-                                    Replace <code>[YOUR_USERNAME]</code> with your username (e.g.{" "}
-                                    <code>steve</code>).
+                                    Make sure the <strong>Supabase connector</strong> is enabled for
+                                    this project (tap the project settings → Connectors).
                                 </ListItem>
                                 <ListItem>
-                                    Start a new chat inside this project and try "what tables do I have?"
+                                    Start a new chat inside the project and try:{" "}
+                                    <em>"What tables do I have?"</em>
                                 </ListItem>
                             </OrderedList>
                         </VStack>
@@ -143,42 +116,26 @@ export default function StepClaude() {
                     {/* Web */}
                     <TabPanel px={0}>
                         <VStack align="stretch" gap={4}>
-                            <Heading size="sm">Add the MCP connector</Heading>
+                            <Heading size="sm">Create a Project</Heading>
                             <OrderedList spacing={2} pl={4}>
                                 <ListItem>
                                     Go to{" "}
                                     <Link href="https://claude.ai" color="green.600" isExternal>
                                         claude.ai
                                     </Link>{" "}
-                                    → click your name → <strong>Settings → Connectors</strong>.
+                                    → click <strong>Projects → New Project</strong>. Name it{" "}
+                                    <em>My Notes</em>.
                                 </ListItem>
                                 <ListItem>
-                                    Click <strong>Add custom connector</strong>.
+                                    Click <strong>Edit project instructions</strong> and paste the
+                                    system prompt below.
                                 </ListItem>
                                 <ListItem>
-                                    Name: <em>Teasenotes</em>. URL:{" "}
-                                    <code>https://teasenotes-mcp.YOUR-ACCOUNT.workers.dev/mcp</code>
+                                    In the project settings, verify the <strong>Supabase</strong>{" "}
+                                    connector is toggled on.
                                 </ListItem>
                                 <ListItem>
-                                    Set authentication to <strong>Bearer Token</strong> and paste your API key.
-                                </ListItem>
-                                <ListItem>Save and confirm the green checkmark.</ListItem>
-                            </OrderedList>
-
-                            <Heading size="sm" mt={2}>
-                                Create a Project
-                            </Heading>
-                            <OrderedList spacing={2} pl={4}>
-                                <ListItem>
-                                    Click <strong>Projects → New Project</strong> → name it{" "}
-                                    <em>Family Notes</em>.
-                                </ListItem>
-                                <ListItem>
-                                    Click <strong>Edit project instructions</strong> and paste the system
-                                    prompt below. Replace <code>[YOUR_USERNAME]</code>.
-                                </ListItem>
-                                <ListItem>
-                                    Verify the Teasenotes connector is enabled for this project.
+                                    Start a chat and try: <em>"What tables do I have?"</em>
                                 </ListItem>
                             </OrderedList>
                         </VStack>
@@ -187,23 +144,19 @@ export default function StepClaude() {
                     {/* Desktop */}
                     <TabPanel px={0}>
                         <VStack align="stretch" gap={4}>
-                            <Heading size="sm">Add the MCP connector</Heading>
+                            <Heading size="sm">Create a Project</Heading>
                             <OrderedList spacing={2} pl={4}>
                                 <ListItem>
-                                    Open Claude Desktop → <strong>Settings → Connectors → Add</strong>.
+                                    Open Claude Desktop → <strong>Projects → New Project</strong> →
+                                    name it <em>My Notes</em>.
                                 </ListItem>
                                 <ListItem>
-                                    Name: <em>Teasenotes</em>. URL:{" "}
-                                    <code>https://teasenotes-mcp.YOUR-ACCOUNT.workers.dev/mcp</code>
+                                    Paste the system prompt below into <strong>Project Instructions</strong>.
                                 </ListItem>
                                 <ListItem>
-                                    Authentication: <strong>Bearer Token</strong> → paste your API key.
+                                    Confirm the Supabase connector is enabled for the project.
                                 </ListItem>
-                                <ListItem>Save. Restart Claude Desktop if prompted.</ListItem>
                             </OrderedList>
-                            <Heading size="sm" mt={2}>
-                                Create a Project (same as Web tab above)
-                            </Heading>
                         </VStack>
                     </TabPanel>
                 </TabPanels>
@@ -213,9 +166,6 @@ export default function StepClaude() {
                 <Heading size="md" mb={3}>
                     System prompt — paste into Project Instructions
                 </Heading>
-                <Text color="gray.600" fontSize="sm" mb={2}>
-                    Remember to replace <code>[YOUR_USERNAME]</code> with your actual username.
-                </Text>
                 <CodeBlock code={SYSTEM_PROMPT} language="text" />
             </Box>
 

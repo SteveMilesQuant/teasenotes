@@ -1,56 +1,28 @@
-import {
+﻿import {
     Box,
     Button,
+    Code,
     Heading,
     HStack,
+    Link,
+    ListItem,
+    OrderedList,
     Text,
     VStack,
     Alert,
     AlertIcon,
-    Badge,
-    Input,
-    FormLabel,
-    FormControl,
+    Tabs,
+    TabList,
+    TabPanels,
+    Tab,
+    TabPanel,
 } from "@chakra-ui/react";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import CodeBlock from "../components/CodeBlock";
 
-function generateKey() {
-    const arr = new Uint8Array(24);
-    crypto.getRandomValues(arr);
-    return Array.from(arr)
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
-}
+const MCP_URL = "https://mcp.supabase.com/mcp";
 
-export default function StepWorker() {
+export default function StepConnect() {
     const navigate = useNavigate();
-    const [user1, setUser1] = useState("steve");
-    const [key1] = useState(generateKey);
-    const [user2, setUser2] = useState("sarah");
-    const [key2] = useState(generateKey);
-
-    const apiKeysValue = `${key1}:${user1},${key2}:${user2}`;
-
-    const deploySteps = `# 1. Clone the repo (or download the worker folder)
-git clone https://github.com/SteveMilesQuant/teasenotes.git
-cd teasenotes/worker
-
-# 2. Install dependencies
-npm install
-
-# 3. Deploy to Cloudflare (creates a free account if you don't have one)
-npx wrangler deploy
-
-# 4. Set your secrets (run each line separately, paste when prompted)
-npx wrangler secret put SUPABASE_URL
-npx wrangler secret put SUPABASE_SERVICE_KEY
-npx wrangler secret put API_KEYS`;
-
-    const cronToml = `# Add to worker/wrangler.toml to prevent Supabase free tier from pausing:
-[triggers]
-crons = ["0 12 * * *"]`;
 
     return (
         <VStack align="stretch" gap={6}>
@@ -59,124 +31,125 @@ crons = ["0 12 * * *"]`;
                     Step 2 of 4
                 </Text>
                 <Heading size="xl" mb={2}>
-                    Deploy the MCP server
+                    Connect Claude to your database
                 </Heading>
                 <Text color="gray.600" fontSize="lg">
-                    The MCP server is a tiny Cloudflare Worker — free, always-on, and no server to
-                    maintain.
+                    Supabase provides an official hosted MCP server. You just point Claude at it
+                    and log in — no server to deploy, no API keys to manage.
                 </Text>
             </Box>
 
             <Alert status="info" borderRadius="md">
                 <AlertIcon />
                 <Text fontSize="sm">
-                    Cloudflare Workers free tier: 100,000 requests/day, zero cold starts, global
-                    edge network. No credit card needed.
+                    The Supabase MCP URL is{" "}
+                    <Code fontSize="sm">{MCP_URL}</Code>. You can optionally scope it to just your
+                    project by appending{" "}
+                    <Code fontSize="sm">?project_ref=YOUR_PROJECT_REF</Code> (recommended — limits
+                    what Claude can access).
                 </Text>
             </Alert>
 
-            {/* API key generator */}
-            <Box p={5} bg="white" borderRadius="lg" shadow="sm" border="1px solid" borderColor="gray.200">
-                <Heading size="sm" mb={4}>
-                    Generate API keys for your family members
-                </Heading>
-                <Text fontSize="sm" color="gray.600" mb={4}>
-                    Each person gets a unique key. These are like passwords — keep them secret.
-                    You'll paste them into the Cloudflare secret in a moment.
-                </Text>
-                <VStack align="stretch" gap={3}>
-                    <HStack>
-                        <FormControl flex={1}>
-                            <FormLabel fontSize="sm">Person 1 username</FormLabel>
-                            <Input
-                                value={user1}
-                                onChange={(e) => setUser1(e.target.value)}
-                                size="sm"
-                            />
-                        </FormControl>
-                        <FormControl flex={2}>
-                            <FormLabel fontSize="sm">Generated key</FormLabel>
-                            <Input value={key1} isReadOnly size="sm" fontFamily="mono" />
-                        </FormControl>
-                    </HStack>
-                    <HStack>
-                        <FormControl flex={1}>
-                            <FormLabel fontSize="sm">Person 2 username</FormLabel>
-                            <Input
-                                value={user2}
-                                onChange={(e) => setUser2(e.target.value)}
-                                size="sm"
-                            />
-                        </FormControl>
-                        <FormControl flex={2}>
-                            <FormLabel fontSize="sm">Generated key</FormLabel>
-                            <Input value={key2} isReadOnly size="sm" fontFamily="mono" />
-                        </FormControl>
-                    </HStack>
-                </VStack>
-                <Text fontSize="xs" color="gray.400" mt={3}>
-                    Keys are generated locally in your browser and never sent anywhere.
-                </Text>
-            </Box>
+            <Tabs colorScheme="green" variant="enclosed">
+                <TabList>
+                    <Tab>iPhone / iPad</Tab>
+                    <Tab>Web (claude.ai)</Tab>
+                    <Tab>Desktop app</Tab>
+                </TabList>
 
-            <Box>
-                <Heading size="md" mb={3}>
-                    Deploy commands
-                </Heading>
-                <Text color="gray.600" mb={3}>
-                    Run these in a terminal. When prompted for each secret, paste the values from
-                    Step 1 (Supabase URL, service_role key) and the API_KEYS string below.
-                </Text>
-                <CodeBlock code={deploySteps} language="bash" />
-            </Box>
+                <TabPanels>
+                    {/* iOS */}
+                    <TabPanel px={0}>
+                        <OrderedList spacing={3} pl={4}>
+                            <ListItem>
+                                Open the Claude app → tap your <strong>profile icon</strong> (top left)
+                                → <strong>Settings</strong>.
+                            </ListItem>
+                            <ListItem>
+                                Tap <strong>Connectors → Add connector</strong>.
+                            </ListItem>
+                            <ListItem>
+                                Set the name to <em>Supabase</em> and the URL to:
+                                <Code display="block" mt={1} p={2} borderRadius="md" fontSize="sm">
+                                    {MCP_URL}?project_ref=YOUR_PROJECT_REF
+                                </Code>
+                                Replace <code>YOUR_PROJECT_REF</code> with the code from Step 1.
+                            </ListItem>
+                            <ListItem>
+                                Tap <strong>Save</strong>. Claude will open a browser window — log in
+                                to your Supabase account and grant access. You'll be redirected back
+                                automatically.
+                            </ListItem>
+                            <ListItem>
+                                You should see a green checkmark next to the connector.
+                            </ListItem>
+                        </OrderedList>
+                    </TabPanel>
 
-            <Box>
-                <Heading size="md" mb={2}>
-                    Your API_KEYS value{" "}
-                    <Badge colorScheme="orange" fontSize="xs">
-                        keep secret
-                    </Badge>
-                </Heading>
-                <Text color="gray.600" fontSize="sm" mb={2}>
-                    Paste this when <code>wrangler secret put API_KEYS</code> prompts you:
-                </Text>
-                <CodeBlock code={apiKeysValue} language="text" />
-                <Text fontSize="xs" color="gray.400">
-                    Format: <code>key:username,key:username</code> — usernames will appear in your
-                    database records.
-                </Text>
-            </Box>
+                    {/* Web */}
+                    <TabPanel px={0}>
+                        <OrderedList spacing={3} pl={4}>
+                            <ListItem>
+                                Go to{" "}
+                                <Link href="https://claude.ai" color="green.600" isExternal>
+                                    claude.ai
+                                </Link>{" "}
+                                → click your name (top right) → <strong>Settings → Connectors</strong>.
+                            </ListItem>
+                            <ListItem>
+                                Click <strong>Add custom connector</strong>.
+                            </ListItem>
+                            <ListItem>
+                                Name: <em>Supabase</em>. URL:
+                                <Code display="block" mt={1} p={2} borderRadius="md" fontSize="sm">
+                                    {MCP_URL}?project_ref=YOUR_PROJECT_REF
+                                </Code>
+                            </ListItem>
+                            <ListItem>
+                                Click <strong>Save</strong> — a Supabase login window will open.
+                                Authorize Claude to access your project.
+                            </ListItem>
+                        </OrderedList>
+                    </TabPanel>
 
-            <Box>
-                <Heading size="md" mb={2}>
-                    Optional: prevent Supabase project from pausing
-                </Heading>
-                <Text color="gray.600" fontSize="sm" mb={2}>
-                    Supabase pauses free projects after 7 days of inactivity. Add a daily cron to
-                    keep it alive — add this to <code>worker/wrangler.toml</code> and re-deploy:
-                </Text>
-                <CodeBlock code={cronToml} language="toml" />
-            </Box>
+                    {/* Desktop */}
+                    <TabPanel px={0}>
+                        <OrderedList spacing={3} pl={4}>
+                            <ListItem>
+                                Open Claude Desktop → <strong>Settings → Connectors → Add</strong>.
+                            </ListItem>
+                            <ListItem>
+                                Name: <em>Supabase</em>. URL:
+                                <Code display="block" mt={1} p={2} borderRadius="md" fontSize="sm">
+                                    {MCP_URL}?project_ref=YOUR_PROJECT_REF
+                                </Code>
+                            </ListItem>
+                            <ListItem>
+                                Save → authenticate in the browser window that opens.
+                            </ListItem>
+                        </OrderedList>
+                    </TabPanel>
+                </TabPanels>
+            </Tabs>
 
-            <Box>
-                <Heading size="md" mb={2}>
-                    After deploying
-                </Heading>
-                <Text color="gray.600" fontSize="sm">
-                    Wrangler will print a URL like{" "}
-                    <code>https://teasenotes-mcp.YOUR-ACCOUNT.workers.dev</code>. Save it — you'll
-                    add <code>/mcp</code> to the end when configuring Claude in the next step.
+            <Alert status="warning" borderRadius="md">
+                <AlertIcon />
+                <Text fontSize="sm">
+                    <strong>Security tip:</strong> Always include <code>?project_ref=…</code> to
+                    scope access to one project. Without it, Claude can see all your Supabase
+                    projects.
                 </Text>
-            </Box>
+            </Alert>
 
             <HStack justify="space-between">
                 <Button variant="ghost" onClick={() => navigate("/step/1")}>
                     ← Back
                 </Button>
                 <Button colorScheme="green" size="lg" onClick={() => navigate("/step/3")}>
-                    Next: Configure Claude →
+                    Next: Set up Claude Project →
                 </Button>
             </HStack>
         </VStack>
     );
 }
+

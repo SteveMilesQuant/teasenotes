@@ -105,21 +105,12 @@ export default function StepTest() {
                 <VStack align="stretch" gap={4}>
                     <Box>
                         <Text fontWeight="semibold" mb={1}>
-                            "Invalid API key" or connector shows red ✗
+                            Connector shows a red ✗ or authentication fails
                         </Text>
                         <Text fontSize="sm" color="gray.600">
-                            Double-check that the key you pasted in Claude matches exactly what's in the
-                            <code>API_KEYS</code> Cloudflare secret (format:{" "}
-                            <code>key:username</code>). Keys are case-sensitive.
-                        </Text>
-                    </Box>
-                    <Box>
-                        <Text fontWeight="semibold" mb={1}>
-                            "Error: function exec_sql_query does not exist"
-                        </Text>
-                        <Text fontSize="sm" color="gray.600">
-                            You need to run the SQL bootstrap script from Step 1c in your Supabase SQL
-                            Editor.
+                            In Step 2, make sure you completed the browser OAuth flow all the way through
+                            — Supabase should have redirected you back to Claude after login. Try
+                            removing the connector and re-adding it to restart the auth flow.
                         </Text>
                     </Box>
                     <Box>
@@ -128,26 +119,39 @@ export default function StepTest() {
                         </Text>
                         <UnorderedList fontSize="sm" color="gray.600" spacing={1} pl={4}>
                             <ListItem>
-                                Make sure you're chatting inside the <em>Family Notes</em> Project (not a
-                                regular chat).
+                                Make sure you're chatting inside the <em>My Notes</em> Project, not a
+                                regular chat.
                             </ListItem>
                             <ListItem>
-                                Check that the Teasenotes connector is enabled for the project (Settings →
-                                Connectors → project toggle).
+                                Check that the Supabase connector is enabled for the project (project
+                                settings → Connectors).
                             </ListItem>
                             <ListItem>
-                                Try asking: "list your available tools" — Claude should list list_tables,
-                                query, write, etc.
+                                Try asking: "list your available tools" — Claude should mention
+                                execute_sql, list_tables, etc.
                             </ListItem>
                         </UnorderedList>
                     </Box>
                     <Box>
                         <Text fontWeight="semibold" mb={1}>
-                            Supabase returns errors about permissions
+                            "Project not found" or permission errors
                         </Text>
                         <Text fontSize="sm" color="gray.600">
-                            Make sure you used the <strong>service_role</strong> key (not the{" "}
-                            <strong>anon</strong> key) in the <code>SUPABASE_SERVICE_KEY</code> secret.
+                            Check that the <code>project_ref</code> in your connector URL matches
+                            your actual Supabase project reference ID (the short code from your
+                            dashboard URL).
+                        </Text>
+                    </Box>
+                    <Box>
+                        <Text fontWeight="semibold" mb={1}>
+                            Supabase free project is paused
+                        </Text>
+                        <Text fontSize="sm" color="gray.600">
+                            Free Supabase projects pause after 7 days of no activity. Visit your{" "}
+                            <Link href="https://supabase.com/dashboard" color="green.600" isExternal>
+                                Supabase dashboard
+                            </Link>{" "}
+                            and click <strong>Restore</strong> to wake it up. Takes about 30 seconds.
                         </Text>
                     </Box>
                 </VStack>
@@ -160,9 +164,9 @@ export default function StepTest() {
                     Sharing with friends
                 </Heading>
                 <Text color="gray.600" fontSize="sm">
-                    Each friend needs their own independent setup (their own Supabase project +
-                    their own Cloudflare Worker deployment). Send them this onboarding URL and they
-                    can follow the same 4 steps. Their data stays completely separate from yours.
+                    Each friend follows the same 4 steps independently — they get their own
+                    Supabase project and their own private database. Send them this onboarding URL
+                    and they're set up in about 10 minutes.
                 </Text>
             </Box>
 
@@ -171,8 +175,8 @@ export default function StepTest() {
                     You're all set!
                 </Heading>
                 <Text fontSize="sm" color="green.700">
-                    Your family now has an AI-powered personal notes database. Claude will
-                    automatically create new tables as your wife discovers new things to track —
+                    You now have an AI-powered personal notes database. Claude will
+                    automatically create new tables as you discover new things to track —
                     recipes, movies, books, gift ideas, you name it. All free, all private, all
                     natural language.
                 </Text>

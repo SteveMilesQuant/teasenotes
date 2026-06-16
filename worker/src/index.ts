@@ -339,6 +339,84 @@ async function processMessage(
 }
 
 // ---------------------------------------------------------------------------
+// OAuth 2.0 client_credentials endpoint
+//
+// Claude.ai's connector UI requires OAuth — it shows "OAuth Client ID" and
+// "OAuth Client Secret" fields instead of a plain bearer token field.
+//
+// We implement a minimal client_credentials flow:
+//   Client ID  = username  (e.g. "steve")
+//   Client Secret = api key  (the random hex from API_KEYS)
+//
+// Claude POSTs to /token, gets back an access_token = the api key,
+// then uses it as a normal Bearer token on /mcp.
+// ---------------------------------------------------------------------------
+
+function oauthDiscovery(baseUrl: string) {
+    return {
+        issuer: baseUrl,
+        token_endpoint: `${baseUrl}/token`,
+        grant_types_supported: ["client_credentials"],
+        token_endpoint_auth_methods_supported: ["client_secret_post", "client_secret_basic"],
+    };
+}
+
+async function handleTokenRequest(request: Request, env: Env): Promise<Response> {
+    let clientId: string | null = null;
+    let clientSecret: string | null = null;
+
+    const contentType = request.headers.get("Content-Type") ?? "";
+
+    if (contentType.includes("application/x-www-form-urlencoded")) {
+        const body = await request.text();
+        const params = new URLSearchParams(body);
+        clientId = params.get("client_id");
+        clientSecret = params.get("client_secret");
+    } else if (contentType.includes("application/json")) {
+        const body = await request.json() as Record<string, string>;
+        clientId = body["client_id"] ?? null;
+        clientSecret = body["client_secret"] ?? null;
+    }
+
+    // Also accept HTTP Basic auth
+    const basic = request.headers.get("Authorization") ?? "";
+    if (basic.startsWith("Basic ")) {
+        const decoded = atob(basic.slice(6));
+        const sep = decoded.indexOf(":");
+        if (sep !== -1) {
+            clientId = decoded.slice(0, sep);
+            clientSecret = decoded.slice(sep + 1);
+        }
+    }
+
+    if (!clientSecret || !env.API_KEYS) {
+        return new Response(
+            JSON.stringify({ error: "invalid_client" }),
+            { status: 401, headers: { ...CORS, "Content-Type": "application/json" } }
+        );
+    }
+
+    // Validate: clientSecret must be a known API key
+    const username = resolveUsername(clientSecret, env.API_KEYS);
+    if (!username) {
+        return new Response(
+            JSON.stringify({ error: "invalid_client", error_description: "Unknown API key" }),
+            { status: 401, headers: { ...CORS, "Content-Type": "application/json" } }
+        );
+    }
+
+    // The access_token IS the api key — validated again on each /mcp request
+    return new Response(
+        JSON.stringify({
+            access_token: clientSecret,
+            token_type: "bearer",
+            expires_in: 31536000, // 1 year
+        }),
+        { status: 200, headers: { ...CORS, "Content-Type": "application/json" } }
+    );
+}
+
+// ---------------------------------------------------------------------------
 // CORS headers
 // ---------------------------------------------------------------------------
 
@@ -364,6 +442,22 @@ export default {
             return new Response("teasenotes-mcp OK", {
                 headers: { ...CORS, "Content-Type": "text/plain" },
             });
+        }
+
+        // OAuth discovery endpoint — Claude.ai fetches this to find the token URL
+        if (url.pathname === "/.well-known/oauth-authorization-server") {
+            const base = `${url.protocol}//${url.host}`;
+            return new Response(JSON.stringify(oauthDiscovery(base)), {
+                headers: { ...CORS, "Content-Type": "application/json" },
+            });
+        }
+
+        // OAuth token endpoint — exchange client_secret (api key) for access_token
+        if (url.pathname === "/token") {
+            if (request.method !== "POST") {
+                return new Response("Method Not Allowed", { status: 405, headers: CORS });
+            }
+            return handleTokenRequest(request, env);
         }
 
         if (url.pathname !== "/mcp") {
