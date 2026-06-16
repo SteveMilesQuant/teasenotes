@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev:worker": "npm --prefix worker run dev",
-    "dev:onboarding": "npm --prefix onboarding run dev",
-    "install:all": "npm --prefix worker install && npm --prefix onboarding install",
-    "build:onboarding": "npm --prefix onboarding run build",
-    "deploy:worker": "npm --prefix worker run deploy"
+    "dev": "npm --prefix onboarding run dev",
+    "build": "npm --prefix onboarding run build",
+    "preview": "npm --prefix onboarding run preview",
+    "install:all": "npm --prefix onboarding install"
   }
 }
