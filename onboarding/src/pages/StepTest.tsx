@@ -13,7 +13,6 @@ import {
     Divider,
     Badge,
 } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
 import CodeBlock from "../components/CodeBlock";
 
 const TEST_PROMPTS = [
@@ -45,8 +44,11 @@ const TEST_PROMPTS = [
     },
 ];
 
-export default function StepTest() {
-    const navigate = useNavigate();
+interface StepTestProps {
+    onBack: () => void;
+}
+
+export default function StepTest({ onBack }: StepTestProps) {
 
     return (
         <VStack align="stretch" gap={6}>
@@ -183,7 +185,7 @@ export default function StepTest() {
             </Box>
 
             <HStack justify="space-between">
-                <Button variant="ghost" onClick={() => navigate("/step/3")}>
+                <Button variant="ghost" onClick={onBack}>
                     ← Back
                 </Button>
                 <Link href="https://github.com/SteveMilesQuant/teasenotes" isExternal>

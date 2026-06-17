@@ -10,7 +10,6 @@
     Alert,
     AlertIcon,
 } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
 import CodeBlock from "../components/CodeBlock";
 
 const SETUP_SQL = `-- Create the AI memory table
@@ -36,8 +35,11 @@ INSERT INTO ai_memory (applies_to, content) VALUES
 
 Use snake_case for all table and column names.');`;
 
-export default function StepSupabase() {
-    const navigate = useNavigate();
+interface StepSupabaseProps {
+    onNext: () => void;
+}
+
+export default function StepSupabase({ onNext }: StepSupabaseProps) {
 
     return (
         <VStack align="stretch" gap={6}>
@@ -121,7 +123,7 @@ export default function StepSupabase() {
                 colorScheme="green"
                 size="lg"
                 alignSelf="flex-end"
-                onClick={() => navigate("/step/2")}
+                onClick={onNext}
             >
                 Next: Connect Claude to your database →
             </Button>

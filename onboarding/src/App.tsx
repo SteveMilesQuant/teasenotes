@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { useState } from "react";
 import Layout from "./components/Layout";
 import StepSupabase from "./pages/StepSupabase";
 import StepWorker from "./pages/StepWorker";
@@ -6,15 +6,14 @@ import StepClaude from "./pages/StepClaude";
 import StepTest from "./pages/StepTest";
 
 export default function App() {
+    const [step, setStep] = useState(1);
+
     return (
-        <Layout>
-            <Routes>
-                <Route path="/" element={<Navigate to="/step/1" replace />} />
-                <Route path="/step/1" element={<StepSupabase />} />
-                <Route path="/step/2" element={<StepWorker />} />
-                <Route path="/step/3" element={<StepClaude />} />
-                <Route path="/step/4" element={<StepTest />} />
-            </Routes>
+        <Layout step={step} onStepChange={setStep}>
+            {step === 1 && <StepSupabase onNext={() => setStep(2)} />}
+            {step === 2 && <StepWorker onBack={() => setStep(1)} onNext={() => setStep(3)} />}
+            {step === 3 && <StepClaude onBack={() => setStep(2)} onNext={() => setStep(4)} />}
+            {step === 4 && <StepTest onBack={() => setStep(3)} />}
         </Layout>
     );
 }

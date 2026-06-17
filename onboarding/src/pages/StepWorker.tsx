@@ -17,12 +17,14 @@
     Tab,
     TabPanel,
 } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
-
 const MCP_URL = "https://mcp.supabase.com/mcp";
 
-export default function StepConnect() {
-    const navigate = useNavigate();
+interface StepWorkerProps {
+    onBack: () => void;
+    onNext: () => void;
+}
+
+export default function StepConnect({ onBack, onNext }: StepWorkerProps) {
 
     return (
         <VStack align="stretch" gap={6}>
@@ -179,10 +181,10 @@ export default function StepConnect() {
             </Box>
 
             <HStack justify="space-between">
-                <Button variant="ghost" onClick={() => navigate("/step/1")}>
+                <Button variant="ghost" onClick={onBack}>
                     ← Back
                 </Button>
-                <Button colorScheme="green" size="lg" onClick={() => navigate("/step/3")}>
+                <Button colorScheme="green" size="lg" onClick={onNext}>
                     Next: Set up Claude Project →
                 </Button>
             </HStack>

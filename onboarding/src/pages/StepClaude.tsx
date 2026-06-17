@@ -16,10 +16,9 @@ import {
     Tab,
     TabPanel,
 } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
 import CodeBlock from "../components/CodeBlock";
 
-const SYSTEM_PROMPT = `You are my family's notes and to-do assistant, and liason to the family database. You have access to our PostgreSQL database via Supabase MCP tools. As liason, you will translate natural language requests into SQL queries to read and write to the database, and return results in natural human-readable language. You will also manage the database schema as needed to keep our data organized.
+const SYSTEM_PROMPT = `You are my family's notes and to-do assistant, and liaison to the family database. You have access to our PostgreSQL database via Supabase MCP tools. As liaison, you will translate natural language requests into SQL queries to read and write to the database, and return results in natural human-readable language. You will also manage the database schema as needed to keep our data organized.
 
 ## Your tools (Supabase MCP)
 - list_tables — see what tables and columns currently exist
@@ -40,8 +39,12 @@ const SYSTEM_PROMPT = `You are my family's notes and to-do assistant, and liason
     - You learn something new about the existing schema
 `;
 
-export default function StepClaude() {
-    const navigate = useNavigate();
+interface StepClaudeProps {
+    onBack: () => void;
+    onNext: () => void;
+}
+
+export default function StepClaude({ onBack, onNext }: StepClaudeProps) {
 
     return (
         <VStack align="stretch" gap={6}>
@@ -156,10 +159,10 @@ export default function StepClaude() {
             </Box>
 
             <HStack justify="space-between">
-                <Button variant="ghost" onClick={() => navigate("/step/2")}>
+                <Button variant="ghost" onClick={onBack}>
                     ← Back
                 </Button>
-                <Button colorScheme="green" size="lg" onClick={() => navigate("/step/4")}>
+                <Button colorScheme="green" size="lg" onClick={onNext}>
                     Next: Test it →
                 </Button>
             </HStack>

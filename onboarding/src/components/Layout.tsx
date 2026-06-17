@@ -8,19 +8,18 @@ import {
     Text,
     Badge,
 } from "@chakra-ui/react";
-import { NavLink, useLocation } from "react-router-dom";
 import type { ReactNode } from "react";
 
-const STEPS = [
-    { path: "/step/1", label: "1. Supabase" },
-    { path: "/step/2", label: "2. Connect MCP" },
-    { path: "/step/3", label: "3. Claude" },
-    { path: "/step/4", label: "4. Test" },
-];
+const STEP_LABELS = ["1. Supabase", "2. Connect MCP", "3. Claude", "4. Test"];
 
-export default function Layout({ children }: { children: ReactNode }) {
-    const location = useLocation();
-    const currentStep = STEPS.findIndex((s) => location.pathname.startsWith(s.path));
+interface LayoutProps {
+    children: ReactNode;
+    step: number;
+    onStepChange: (step: number) => void;
+}
+
+export default function Layout({ children, step, onStepChange }: LayoutProps) {
+    const currentStep = step - 1; // 0-based index
 
     return (
         <Box minH="100vh" bg="gray.50">
@@ -39,11 +38,11 @@ export default function Layout({ children }: { children: ReactNode }) {
                         </HStack>
 
                         <HStack gap={1} as="nav">
-                            {STEPS.map((step, i) => (
-                                <Link
-                                    key={step.path}
-                                    as={NavLink}
-                                    to={step.path}
+                            {STEP_LABELS.map((label, i) => (
+                                <Box
+                                    key={label}
+                                    as="button"
+                                    onClick={() => onStepChange(i + 1)}
                                     px={3}
                                     py={1}
                                     borderRadius="md"
@@ -51,10 +50,12 @@ export default function Layout({ children }: { children: ReactNode }) {
                                     fontWeight={currentStep === i ? "bold" : "normal"}
                                     bg={currentStep === i ? "white" : "transparent"}
                                     color={currentStep === i ? "green.700" : "whiteAlpha.800"}
-                                    _hover={{ bg: "whiteAlpha.300", textDecoration: "none" }}
+                                    _hover={{ bg: currentStep === i ? "white" : "whiteAlpha.300" }}
+                                    cursor="pointer"
+                                    border="none"
                                 >
-                                    {step.label}
-                                </Link>
+                                    {label}
+                                </Box>
                             ))}
                         </HStack>
                     </Flex>
@@ -67,7 +68,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                     bg="green.500"
                     h="full"
                     transition="width 0.3s"
-                    style={{ width: `${((currentStep + 1) / STEPS.length) * 100}%` }}
+                    style={{ width: `${((currentStep + 1) / STEP_LABELS.length) * 100}%` }}
                 />
             </Box>
 
