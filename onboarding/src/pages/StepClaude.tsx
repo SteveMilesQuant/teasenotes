@@ -37,6 +37,7 @@ const SYSTEM_PROMPT = `You are my family's notes and to-do assistant, and liaiso
     - User corrects you on something
     - You create a new table
     - You learn something new about the existing schema
+- When you update this table, make sure the memory/advice is generalized enough to apply to each member of the family. Remember, this applies to everyone.
 `;
 
 interface StepClaudeProps {
