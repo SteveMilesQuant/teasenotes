@@ -21,9 +21,9 @@ CREATE TABLE IF NOT EXISTS ai_memory (
   updated_at  TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
 
--- Claude connects via the service role (MCP), which bypasses RLS.
--- Disable it so Supabase doesn't warn about unprotected tables.
-ALTER TABLE ai_memory DISABLE ROW LEVEL SECURITY;
+-- Enable RLS to block anonymous/public access.
+-- Claude connects via the service role (MCP), which bypasses RLS, so it is unaffected.
+ALTER TABLE ai_memory ENABLE ROW LEVEL SECURITY;
 
 -- Seed default memory rows
 INSERT INTO ai_memory (applies_to, content) VALUES
@@ -33,7 +33,12 @@ INSERT INTO ai_memory (applies_to, content) VALUES
   created_at  TIMESTAMPTZ  NOT NULL DEFAULT now(),
   updated_at  TIMESTAMPTZ  NOT NULL DEFAULT now()
 
-Use snake_case for all table and column names.');`;
+Use snake_case for all table and column names.
+
+After creating the table, always enable row-level security to block anonymous access:
+  ALTER TABLE <table_name> ENABLE ROW LEVEL SECURITY;
+
+Claude connects via the service role, which bypasses RLS, so this does not affect your ability to read or write data.');`;
 
 interface StepSupabaseProps {
     onNext: () => void;
