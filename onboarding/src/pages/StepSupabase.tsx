@@ -11,6 +11,30 @@
     AlertIcon,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
+import CodeBlock from "../components/CodeBlock";
+
+const SETUP_SQL = `-- Create the AI memory table
+CREATE TABLE IF NOT EXISTS ai_memory (
+  id          UUID         DEFAULT gen_random_uuid() PRIMARY KEY,
+  applies_to  TEXT         NOT NULL,
+  content     TEXT         NOT NULL,
+  created_at  TIMESTAMPTZ  NOT NULL DEFAULT now(),
+  updated_at  TIMESTAMPTZ  NOT NULL DEFAULT now()
+);
+
+-- Claude connects via the service role (MCP), which bypasses RLS.
+-- Disable it so Supabase doesn't warn about unprotected tables.
+ALTER TABLE ai_memory DISABLE ROW LEVEL SECURITY;
+
+-- Seed default memory rows
+INSERT INTO ai_memory (applies_to, content) VALUES
+  ('always', ''),
+  ('creating a new table', 'Every table you create MUST include these standard columns:
+  id          UUID         DEFAULT gen_random_uuid() PRIMARY KEY,
+  created_at  TIMESTAMPTZ  NOT NULL DEFAULT now(),
+  updated_at  TIMESTAMPTZ  NOT NULL DEFAULT now()
+
+Use snake_case for all table and column names.');`;
 
 export default function StepSupabase() {
     const navigate = useNavigate();
@@ -54,7 +78,7 @@ export default function StepSupabase() {
                     </ListItem>
                     <ListItem>
                         Click <strong>New project</strong>. Give it any name (e.g.{" "}
-                        <code>my-notes</code>). Pick the region closest to you. Set a database
+                        <code>tease-notes</code>). Pick the region closest to you. Set a database
                         password and save it somewhere safe — you won't need it often but it's good
                         to have.
                     </ListItem>
@@ -68,11 +92,28 @@ export default function StepSupabase() {
                 </OrderedList>
             </Box>
 
+            <Box>
+                <Heading size="md" mb={2}>
+                    Run the setup SQL
+                </Heading>
+                <Text color="gray.600" mb={3}>
+                    In your Supabase project, open the <strong>SQL Editor</strong> (left sidebar),
+                    paste the query below, and click <strong>Run</strong>.
+                </Text>
+                <Text color="gray.500" fontSize="sm" mb={3}>
+                    <strong>Note on Row Level Security:</strong> Supabase may warn that this table
+                    has no RLS policies. That's fine — Claude accesses your database through
+                    Supabase's MCP using the service role, which bypasses RLS entirely. The SQL
+                    below disables RLS on this table to silence that warning.
+                </Text>
+                <CodeBlock code={SETUP_SQL} language="sql" />
+            </Box>
+
             <Alert status="success" borderRadius="md">
                 <AlertIcon />
                 <Text fontSize="sm">
-                    That's all for this step — no SQL to run, no keys to copy. Supabase's official
-                    MCP connector handles authentication for you in the next step.
+                    No keys to copy — Supabase's official MCP connector handles authentication for
+                    you in the next step.
                 </Text>
             </Alert>
 
