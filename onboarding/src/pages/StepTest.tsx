@@ -33,14 +33,14 @@ const TEST_PROMPTS = [
         expect: "Claude queries the DB and shows a readable list, not raw SQL or JSON.",
     },
     {
-        label: "Add a private to-do",
-        prompt: "Remind me to call the dentist tomorrow.",
-        expect: "Inserts a todo with owner=you, shared=false.",
+        label: "Add a to-do for yourself",
+        prompt: "Remind me to call Dad this weekend.",
+        expect: "Inserts a todo with owner=you.",
     },
     {
         label: "Shared shopping list",
         prompt: "Add milk and eggs to the grocery list.",
-        expect: "Inserts two shopping_items with shared=true.",
+        expect: "Inserts two shopping_items.",
     },
 ];
 
@@ -60,7 +60,7 @@ export default function StepTest({ onBack }: StepTestProps) {
                     Test it out 🎉
                 </Heading>
                 <Text color="gray.600" fontSize="lg">
-                    Open your <strong>Family Notes</strong> Claude Project and try these prompts.
+                    Open your <strong>TeaseNotes</strong> Claude Project and try these prompts.
                 </Text>
             </Box>
 
@@ -161,23 +161,12 @@ export default function StepTest({ onBack }: StepTestProps) {
 
             <Divider />
 
-            <Box>
-                <Heading size="md" mb={3}>
-                    Sharing with friends
-                </Heading>
-                <Text color="gray.600" fontSize="sm">
-                    Each friend follows the same 4 steps independently — they get their own
-                    Supabase project and their own private database. Send them this onboarding URL
-                    and they're set up in about 10 minutes.
-                </Text>
-            </Box>
-
             <Box p={5} bg="green.50" borderRadius="lg" border="1px solid" borderColor="green.200">
                 <Heading size="sm" mb={2} color="green.800">
                     You're all set!
                 </Heading>
                 <Text fontSize="sm" color="green.700">
-                    You now have an AI-powered personal notes database. Claude will
+                    You now have an AI-powered family notes database with its own memory. Claude will
                     automatically create new tables as you discover new things to track —
                     recipes, movies, books, gift ideas, you name it. All free, all private, all
                     natural language.
@@ -188,11 +177,7 @@ export default function StepTest({ onBack }: StepTestProps) {
                 <Button variant="ghost" onClick={onBack}>
                     ← Back
                 </Button>
-                <Link href="https://github.com/SteveMilesQuant/teasenotes" isExternal>
-                    <Button colorScheme="gray" variant="outline">
-                        View on GitHub
-                    </Button>
-                </Link>
+                <Box></Box>
             </HStack>
         </VStack>
     );

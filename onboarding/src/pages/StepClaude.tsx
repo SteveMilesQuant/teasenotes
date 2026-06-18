@@ -85,19 +85,11 @@ export default function StepClaude({ onBack, onNext }: StepClaudeProps) {
                             <OrderedList spacing={2} pl={4}>
                                 <ListItem>
                                     Tap <strong>Projects → New Project</strong>. Name it{" "}
-                                    <em>My Notes</em>.
+                                    <em>TeaseNotes</em>.
                                 </ListItem>
                                 <ListItem>
                                     Tap <strong>Project Instructions</strong> and paste the system
                                     prompt below.
-                                </ListItem>
-                                <ListItem>
-                                    Make sure the <strong>Supabase connector</strong> is enabled for
-                                    this project (tap the project settings → Connectors).
-                                </ListItem>
-                                <ListItem>
-                                    Start a new chat inside the project and try:{" "}
-                                    <em>"What tables do I have?"</em>
                                 </ListItem>
                             </OrderedList>
                         </VStack>
@@ -114,18 +106,11 @@ export default function StepClaude({ onBack, onNext }: StepClaudeProps) {
                                         claude.ai
                                     </Link>{" "}
                                     → click <strong>Projects → New Project</strong>. Name it{" "}
-                                    <em>My Notes</em>.
+                                    <em>TeaseNotes</em>.
                                 </ListItem>
                                 <ListItem>
                                     Click <strong>Edit project instructions</strong> and paste the
                                     system prompt below.
-                                </ListItem>
-                                <ListItem>
-                                    In the project settings, verify the <strong>Supabase</strong>{" "}
-                                    connector is toggled on.
-                                </ListItem>
-                                <ListItem>
-                                    Start a chat and try: <em>"What tables do I have?"</em>
                                 </ListItem>
                             </OrderedList>
                         </VStack>
@@ -138,13 +123,10 @@ export default function StepClaude({ onBack, onNext }: StepClaudeProps) {
                             <OrderedList spacing={2} pl={4}>
                                 <ListItem>
                                     Open Claude Desktop → <strong>Projects → New Project</strong> →
-                                    name it <em>My Notes</em>.
+                                    name it <em>TeaseNotes</em>.
                                 </ListItem>
                                 <ListItem>
                                     Paste the system prompt below into <strong>Project Instructions</strong>.
-                                </ListItem>
-                                <ListItem>
-                                    Confirm the Supabase connector is enabled for the project.
                                 </ListItem>
                             </OrderedList>
                         </VStack>
@@ -156,6 +138,12 @@ export default function StepClaude({ onBack, onNext }: StepClaudeProps) {
                 <Heading size="md" mb={3}>
                     System prompt — paste into Project Instructions
                 </Heading>
+                <Alert status="info" borderRadius="md">
+                    <AlertIcon />
+                    <Text fontSize="sm">
+                        Tip: Add an introduction to yourself at the beginning of this prompt. For example, "My name is Steve." This will help Claude categorize TODOs by who is speaking.
+                    </Text>
+                </Alert>
                 <CodeBlock code={SYSTEM_PROMPT} language="text" />
             </Box>
 

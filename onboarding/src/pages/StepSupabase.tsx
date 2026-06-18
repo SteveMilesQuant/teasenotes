@@ -57,16 +57,13 @@ export default function StepSupabase({ onNext }: StepSupabaseProps) {
                 </Heading>
                 <Text color="gray.600" fontSize="lg">
                     Supabase gives you a free PostgreSQL database in the cloud — no credit card needed.
-                    Each person gets their own private database.
                 </Text>
             </Box>
 
             <Alert status="info" borderRadius="md">
                 <AlertIcon />
-                <Text fontSize="sm">
-                    The free tier includes 500 MB storage and 50,000 API calls per day — plenty for
-                    a personal notes app. Free projects pause after 7 days of no activity; just visit
-                    your dashboard to wake one up, or upgrade to a paid plan ($25/mo) to prevent it.
+                <Text>
+                    Only one member of the family needs to do this step - just use the same project reference ID for everyone in the next step. If you want to set up separate databases for each person, that's fine too!.
                 </Text>
             </Alert>
 
@@ -84,8 +81,12 @@ export default function StepSupabase({ onNext }: StepSupabaseProps) {
                         — it's free.
                     </ListItem>
                     <ListItem>
+                        Click <strong>New orgamization</strong>. Give it any name (e.g.{" "}
+                        <code>The Miles Family</code>).
+                    </ListItem>
+                    <ListItem>
                         Click <strong>New project</strong>. Give it any name (e.g.{" "}
-                        <code>tease-notes</code>). Pick the region closest to you. Set a database
+                        <code>TeaseNotes</code>). Pick the region closest to you. Set a database
                         password and save it somewhere safe — you won't need it often but it's good
                         to have.
                     </ListItem>
